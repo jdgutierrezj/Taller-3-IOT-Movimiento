@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+
+  <title>DashBoard MATI-ARTI4208!</title>
+</head>
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12 card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Tablero de control IOT</h5>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="card bg-light">
+          <div class="card-header">Sensor de Iluminaci&oacute;n</div>
+          <div class="card-body">
+            <canvas id="sensor1" width="500" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="card bg-light">
+          <div class="card-header">Sensor de Temperatura</div>
+          <div class="card-body">
+            <canvas id="sensor2" width="500" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="card bg-light">
+          <div class="card-header">Sensor de Humedad</div>
+          <div class="card-body">
+            <canvas id="sensor3" width="500" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="card bg-light">
+          <div class="card-header">Sensor de Movimiento</div>
+          <div class="card-body">
+            <canvas id="sensor4" width="500" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="card bg-light">
+          <div class="card-header">Sensor de Humo</div>
+          <div class="card-body">
+            <canvas id="sensor5" width="500" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="card bg-light">
+          <div class="card-header">Sensor de Voltaje</div>
+          <div class="card-body">
+            <canvas id="sensor6" width="500" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+  var sensor1 = document.getElementById("sensor1").getContext('2d');
+  var sensor2 = document.getElementById("sensor2").getContext('2d');
+  var sensor3 = document.getElementById("sensor3").getContext('2d');
+  var sensor4 = document.getElementById("sensor4").getContext('2d');
+  var sensor5 = document.getElementById("sensor5").getContext('2d');
+  var sensor6 = document.getElementById("sensor6").getContext('2d');
+  var data = {
+    labels: [],
+    datasets: [{
+      label: '',
+      data: [],
+      borderColor: [
+        'rgba(54, 162, 235, 1)'
+      ],
+      borderWidth: 1
+    }]
+  };
+
+  var options = {
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero:true
+        }
+      }]
+    }
+  };
+  var chart1 = new Chart(sensor1, {
+    type: 'line',
+    data: data,
+    options: options
+  });
+  var chart2 = new Chart(sensor2, {
+    type: 'line',
+    data: data,
+    options: options
+  });
+  var chart3 = new Chart(sensor3, {
+    type: 'line',
+    data: data,
+    options: options
+  });
+  var chart4 = new Chart(sensor4, {
+    type: 'line',
+    data: data,
+    options: options
+  });
+  var chart5 = new Chart(sensor5, {
+    type: 'line',
+    data: data,
+    options: options
+  });
+  var chart6 = new Chart(sensor6, {
+    type: 'line',
+    data: data,
+    options: options
+  });
+
+  var socket = io();
+  // En el momento en que llegue un mensaje del tópico 'chat message' ejecuta la función
+  socket.on('lighting', function(msg){
+    // Agrega un nuevo mensaje a la lista de mensajes
+    var message = msg.split(';@')[0];
+    var jsonObject = JSON.parse(message);
+    addData(chart1,jsonObject.timestamp,jsonObject.medition);
+  });
+
+  socket.on('temperature', function(msg){
+    // Agrega un nuevo mensaje a la lista de mensajes
+    var message = msg.split(';@')[0];
+    var jsonObject = JSON.parse(message);
+    addData(chart2,jsonObject.timestamp,jsonObject.medition);
+  });
+
+  socket.on('humidity', function(msg){
+    // Agrega un nuevo mensaje a la lista de mensajes
+    var message = msg.split(';@')[0];
+    var jsonObject = JSON.parse(message);
+    addData(chart3,jsonObject.timestamp,jsonObject.medition);
+  });
+
+  socket.on('motion', function(msg){
+    // Agrega un nuevo mensaje a la lista de mensajes
+    var message = msg.split(';@')[0];
+    var jsonObject = JSON.parse(message);
+    addData(chart4,jsonObject.timestamp,jsonObject.medition);
+  });
+
+  socket.on('smoke', function(msg){
+    // Agrega un nuevo mensaje a la lista de mensajes
+    var message = msg.split(';@')[0];
+    var jsonObject = JSON.parse(message);
+    addData(chart5,jsonObject.timestamp,jsonObject.medition);
+  });
+
+  socket.on('voltage', function(msg){
+    // Agrega un nuevo mensaje a la lista de mensajes
+    var message = msg.split(';@')[0];
+    var jsonObject = JSON.parse(message);
+    addData(chart6,jsonObject.timestamp,jsonObject.medition);
+  });
+  var WINDOW_SIZE = 20;
+  function addData(chart, label, data) {
+    if(chart.data.labels.length > WINDOW_SIZE){
+      chart.data.labels.shift();
+    }
+    chart.data.labels.push(label);
+    chart.data.datasets.forEach((dataset) => {
+      if(dataset.data.length > WINDOW_SIZE){
+        dataset.data.shift();
+      }
+      dataset.data.push(data);
+    });
+    chart.update();
+  }
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+</body>
+</html>
